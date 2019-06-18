@@ -1,0 +1,21 @@
+{
+  "name": "alexa-ps-plus-free-games-pt-br",
+  "version": "1.0.0",
+  "description": "Pega os jogos grátis do mês na PS Plus",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "alexa",
+    "skill",
+    "ps plus"
+  ],
+  "author": "Ricardo Yasuda",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ask-sdk": "^2.0.0",
+    "request-promise": "latest",
+    "cheerio": "latest"
+  }
+}

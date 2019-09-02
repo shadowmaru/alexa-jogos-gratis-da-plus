@@ -5,6 +5,45 @@ const Alexa = require('ask-sdk');
 const request = require('request-promise');
 const $ = require('cheerio');
 
+const getFreeGamesLink = async () => {
+  try {
+    const host = "https://store.playstation.com";
+    const url = `${host}/pt-br/home/games/psplus`;
+
+    const response = await request(url);
+
+    return await new Promise((resolve, reject) => {
+      const link = $('a:contains("Jogos Gratuitos")', response).attr('href');
+      if(!link) {
+        return reject(link);
+      }
+      resolve(`${host}${link}`);
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+const getFreeGames = async (link) => {
+  try {
+    const response = await request(link);
+    let freeGames = [];
+
+    return await new Promise((resolve, reject) => {
+      const cells = $('.grid-cell__title > span', response);
+      const games = cells.map(function (index, el) {
+        return $(el).text();
+      });
+      freeGames.push(games[0]);
+      freeGames.push(games[1]);
+
+      resolve(freeGames);
+    });
+  } catch(error) {
+    throw error;
+  }
+}
+
 const FreeGamesHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
@@ -12,36 +51,15 @@ const FreeGamesHandler = {
       || (request.type === 'IntentRequest'
         && request.intent.name === 'FreeGamesIntent');
   },
-  handle(handlerInput) {
-    const host = "https://store.playstation.com";
-    const url = `${host}/pt-br/home/games/psplus`;
+  async handle(handlerInput) {
+    const link = await getFreeGamesLink();
+    const freeGames = await getFreeGames(link);
 
-    const link = request(url).
-      then(function(error, response, html) {
-        if(!error){
-          // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
-
-          return $('a:contains("Jogos Gratuitos")', html).attr('href');
-        }
-      }).
-      then(function(link) {
-        request(link).
-          then(function(error, response, html) {
-            if(!error) {
-              const games = $('.grid-cell-container div.ember-view .grid-cell-row__container', html).map(function(el) {
-                return $('.grid-cell__title', el).text();
-              });
-              return games;
-            }
-          })
-      });
-
-    const freeGames="<lang xml:lang='en-US'>Borderlands: The Handsome Collection</lang> e <lang xml:lang='en-US'>Sonic Mania</lang>";
-    const speechOutput = FREE_GAMES_MESSAGE + games;
+    const freeGamesSpeech = `<lang xml:lang='en-US'>${freeGames[0]}</lang> e <lang xml:lang='en-US'>${freeGames[1]}</lang>`;
+    const speechOutput = FREE_GAMES_MESSAGE + freeGamesSpeech;
 
     return handlerInput.responseBuilder
       .speak(speechOutput)
-      // .withSimpleCard(SKILL_NAME, randomFact)
       .getResponse();
   },
 };
@@ -100,11 +118,10 @@ const ErrorHandler = {
   },
 };
 
-const SKILL_NAME = 'PS Plus';
 const FREE_GAMES_MESSAGE = 'Aqui estão os jogos grátis deste mês: ';
-const HELP_MESSAGE = 'You can say tell me a space fact, or, you can say exit... What can I help you with?';
-const HELP_REPROMPT = 'What can I help you with?';
-const STOP_MESSAGE = 'Goodbye!';
+const HELP_MESSAGE = 'Você pode perguntar quais são os jogos grátis deste mês... Como posso ajudar?';
+const HELP_REPROMPT = 'Como posso ajudar?';
+const STOP_MESSAGE = 'Tchau!';
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
@@ -117,4 +134,3 @@ exports.handler = skillBuilder
   )
   .addErrorHandlers(ErrorHandler)
   .lambda();
-

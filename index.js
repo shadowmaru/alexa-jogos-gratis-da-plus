@@ -1,20 +1,20 @@
 /* eslint-disable  func-names */
 /* eslint-disable  no-console */
 
-const Alexa = require('ask-sdk');
-const request = require('request-promise');
-const $ = require('cheerio');
+const Alexa = require("ask-sdk");
+const request = require("request-promise");
+const $ = require("cheerio");
 
 const getFreeGamesLink = async () => {
   try {
     const host = "https://store.playstation.com";
-    const url = `${host}/pt-br/home/games/psplus`;
+    const url = `${host}/pt-br/subscriptions`;
 
     const response = await request(url);
 
     return await new Promise((resolve, reject) => {
-      const link = $('a:contains("Jogos Gratuitos")', response).attr('href');
-      if(!link) {
+      const link = $('a:contains("Jogos Gratuitos")', response).attr("href");
+      if (!link) {
         return reject(link);
       }
       resolve(`${host}${link}`);
@@ -22,7 +22,7 @@ const getFreeGamesLink = async () => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 const getFreeGames = async (link) => {
   try {
@@ -30,45 +30,49 @@ const getFreeGames = async (link) => {
     let freeGames = [];
 
     return await new Promise((resolve, reject) => {
-      const cells = $('.grid-cell__title > span', response);
+      const cells = $(".ems-sdk-product-tile-link", response);
       const games = cells.map(function (index, el) {
-        return $(el).text();
+        return $(el).attr("title");
       });
       freeGames.push(games[0]);
       freeGames.push(games[1]);
 
       resolve(freeGames);
     });
-  } catch(error) {
+  } catch (error) {
     throw error;
   }
-}
+};
 
 const FreeGamesHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
-    return request.type === 'LaunchRequest'
-      || (request.type === 'IntentRequest'
-        && request.intent.name === 'FreeGamesIntent');
+    return (
+      request.type === "LaunchRequest" ||
+      (request.type === "IntentRequest" &&
+        request.intent.name === "FreeGamesIntent")
+    );
   },
   async handle(handlerInput) {
-    const link = await getFreeGamesLink();
-    const freeGames = await getFreeGames(link);
+    const host = "https://store.playstation.com";
+    const url = `${host}/pt-br/subscriptions`;
+    // const link = await getFreeGamesLink();
+    const freeGames = await getFreeGames(url);
 
     const freeGamesSpeech = `<lang xml:lang='en-US'>${freeGames[0]}</lang> e <lang xml:lang='en-US'>${freeGames[1]}</lang>`;
     const speechOutput = FREE_GAMES_MESSAGE + freeGamesSpeech;
 
-    return handlerInput.responseBuilder
-      .speak(speechOutput)
-      .getResponse();
+    return handlerInput.responseBuilder.speak(speechOutput).getResponse();
   },
 };
 
 const HelpHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest'
-      && request.intent.name === 'AMAZON.HelpIntent';
+    return (
+      request.type === "IntentRequest" &&
+      request.intent.name === "AMAZON.HelpIntent"
+    );
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
@@ -81,24 +85,26 @@ const HelpHandler = {
 const ExitHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
-    return request.type === 'IntentRequest'
-      && (request.intent.name === 'AMAZON.CancelIntent'
-        || request.intent.name === 'AMAZON.StopIntent');
+    return (
+      request.type === "IntentRequest" &&
+      (request.intent.name === "AMAZON.CancelIntent" ||
+        request.intent.name === "AMAZON.StopIntent")
+    );
   },
   handle(handlerInput) {
-    return handlerInput.responseBuilder
-      .speak(STOP_MESSAGE)
-      .getResponse();
+    return handlerInput.responseBuilder.speak(STOP_MESSAGE).getResponse();
   },
 };
 
 const SessionEndedRequestHandler = {
   canHandle(handlerInput) {
     const request = handlerInput.requestEnvelope.request;
-    return request.type === 'SessionEndedRequest';
+    return request.type === "SessionEndedRequest";
   },
   handle(handlerInput) {
-    console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
+    console.log(
+      `Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`
+    );
 
     return handlerInput.responseBuilder.getResponse();
   },
@@ -112,16 +118,17 @@ const ErrorHandler = {
     console.log(`Error handled: ${error.message}`);
 
     return handlerInput.responseBuilder
-      .speak('Desculpe, aconteceu um erro')
-      .reprompt('Desculpe, aconteceu um erro')
+      .speak("Desculpe, aconteceu um erro")
+      .reprompt("Desculpe, aconteceu um erro")
       .getResponse();
   },
 };
 
-const FREE_GAMES_MESSAGE = 'Aqui estão os jogos grátis deste mês: ';
-const HELP_MESSAGE = 'Você pode perguntar quais são os jogos grátis deste mês... Como posso ajudar?';
-const HELP_REPROMPT = 'Como posso ajudar?';
-const STOP_MESSAGE = 'Tchau!';
+const FREE_GAMES_MESSAGE = "Aqui estão os jogos grátis deste mês: ";
+const HELP_MESSAGE =
+  "Você pode perguntar quais são os jogos grátis deste mês... Como posso ajudar?";
+const HELP_REPROMPT = "Como posso ajudar?";
+const STOP_MESSAGE = "Tchau!";
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 

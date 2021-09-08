@@ -17,16 +17,20 @@ const getFreeGames = async (link) => {
 
     return await new Promise((resolve) => {
       const cells = $(
-        'section.ems-sdk-strand[data-qa-view-index=1] .ems-sdk-product-tile-link',
+        'div[data-qa-view-index=1] section.psw-product-tile__details > span',
         response,
       );
-      const games = cells.map((index, el) => $(el).attr('title').replace('&', 'and'));
+      const games = cells.map((index, el) => $(el).text().replace('&', 'and'));
 
       games.each((index) => {
         freeGames.push(games[index]);
       });
 
-      resolve(freeGames.filter((game) => !game.endsWith('Subscription')));
+      const filteredGames = freeGames
+        .filter((game) => game !== '')
+        .filter((game) => !game.endsWith('Subscription'));
+
+      resolve(filteredGames);
     });
   } catch (error) {
     console.log(`Error when fetching games: ${error}`);
@@ -50,7 +54,6 @@ const FreeGamesHandler = {
     const freeGamesSpeech = freeGames
       .map((game) => `<lang xml:lang='en-US'>${game}</lang>`)
       .join(', ');
-
     const speechOutput = FREE_GAMES_MESSAGE + freeGamesSpeech;
 
     return handlerInput.responseBuilder.speak(speechOutput).getResponse();

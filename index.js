@@ -17,7 +17,7 @@ const getFreeGames = async (link) => {
 
     return await new Promise((resolve) => {
       const cells = $(
-        'div[data-qa-view-index=1] section.psw-product-tile__details > span',
+        'div[data-qa-view-index=1] section.psw-product-tile__details > span.psw-t-body',
         response,
       );
       const games = cells.map((index, el) => $(el).text().replace('&', 'and'));
@@ -28,7 +28,8 @@ const getFreeGames = async (link) => {
 
       const filteredGames = freeGames
         .filter((game) => game !== '')
-        .filter((game) => !game.endsWith('Subscription'));
+        .filter((game) => !game.endsWith('Subscription'))
+        .filter((game) => !game.startsWith('Assinatura'));
 
       resolve(filteredGames);
     });

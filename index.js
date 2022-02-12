@@ -3,7 +3,7 @@
 
 const Alexa = require('ask-sdk');
 const req = require('request-promise');
-const $ = require('cheerio');
+const $ = require('cheerio').default;
 
 const FREE_GAMES_MESSAGE = 'Aqui estão os jogos grátis deste mês: ';
 const HELP_MESSAGE = 'Você pode perguntar quais são os jogos grátis deste mês... Como posso ajudar?';

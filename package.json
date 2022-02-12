@@ -15,8 +15,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "ask-sdk": "^2.0.0",
+    "cheerio": "^1.0.0-rc.10",
     "request": "latest",
-    "request-promise": "latest",
-    "cheerio": "latest"
+    "request-promise": "latest"
   }
 }

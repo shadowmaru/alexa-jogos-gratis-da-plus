@@ -15,7 +15,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       Handler: index.handler
-      Runtime: nodejs10.x
+      Runtime: nodejs14.x
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

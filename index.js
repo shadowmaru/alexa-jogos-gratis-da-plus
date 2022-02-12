@@ -20,7 +20,7 @@ const getFreeGames = async (link) => {
         'div[data-qa-view-index=1] section.psw-product-tile__details > span.psw-t-body',
         response,
       );
-      const games = cells.map((index, el) => $(el).text().replace('&', 'and').replace('®', ''));
+      const games = cells.map((index, el) => $(el).text().replace('&', 'and').replace('®', '').replace('™', ''));
 
       games.each((index) => {
         freeGames.push(games[index]);

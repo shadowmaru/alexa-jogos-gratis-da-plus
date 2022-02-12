@@ -2,7 +2,7 @@
 /* eslint-disable  no-console */
 
 const Alexa = require('ask-sdk');
-const req = require('request-promise');
+const undici = require('undici');
 const $ = require('cheerio').default;
 
 const FREE_GAMES_MESSAGE = 'Aqui estão os jogos grátis deste mês: ';
@@ -12,13 +12,21 @@ const STOP_MESSAGE = 'Tchau!';
 
 const getFreeGames = async (link) => {
   try {
-    const response = await req(link);
+    const {
+      statusCode,
+      headers,
+      trailers,
+      body
+    } = await undici.request(link);
     const freeGames = [];
 
+    const text = await body.text()
+
     return await new Promise((resolve) => {
+
       const cells = $(
         'div[data-qa-view-index=1] section.psw-product-tile__details > span.psw-t-body',
-        response,
+        text,
       );
       const games = cells.map((index, el) => $(el).text().replace('&', 'and').replace('®', '').replace('™', ''));
 
@@ -42,14 +50,14 @@ const FreeGamesHandler = {
   canHandle(handlerInput) {
     const { request } = handlerInput.requestEnvelope;
     return (
-      request.type === 'LaunchRequest'
+    request.type === 'LaunchRequest'
       || (request.type === 'IntentRequest'
-        && request.intent.name === 'FreeGamesIntent')
+      && request.intent.name === 'FreeGamesIntent')
     );
   },
   async handle(handlerInput) {
     const host = 'https://store.playstation.com';
-    const url = `${host}/pt-br/subscriptions`;
+    const url = `${host}/pt-br/pages/subscriptions`;
     const freeGames = await getFreeGames(url);
 
     const freeGamesSpeech = freeGames
@@ -65,9 +73,9 @@ const HelpHandler = {
   canHandle(handlerInput) {
     const { request } = handlerInput.requestEnvelope;
     return (
-      request.type === 'IntentRequest'
+    request.type === 'IntentRequest'
       && request.intent.name === 'AMAZON.HelpIntent'
-    );
+  );
   },
   handle(handlerInput) {
     return handlerInput.responseBuilder
@@ -81,9 +89,9 @@ const ExitHandler = {
   canHandle(handlerInput) {
     const { request } = handlerInput.requestEnvelope;
     return (
-      request.type === 'IntentRequest'
+    request.type === 'IntentRequest'
       && (request.intent.name === 'AMAZON.CancelIntent'
-        || request.intent.name === 'AMAZON.StopIntent')
+      || request.intent.name === 'AMAZON.StopIntent')
     );
   },
   handle(handlerInput) {

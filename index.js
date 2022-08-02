@@ -25,21 +25,16 @@ const getFreeGames = async (link) => {
     return await new Promise((resolve) => {
 
       const cells = $(
-        'div[data-qa-view-index=1] section.psw-product-tile__details > span.psw-t-body',
+      'div.cmp-experiencefragment--your-latest-monthly-games div.box h3 p',
         text,
-      );
+    );
       const games = cells.map((index, el) => $(el).text().replace('&', 'and').replace('®', '').replace('™', ''));
 
       games.each((index) => {
         freeGames.push(games[index]);
       });
 
-      const filteredGames = freeGames
-        .filter((game) => game !== '')
-        .filter((game) => !game.endsWith('Subscription'))
-        .filter((game) => !game.startsWith('Assinatura'));
-
-      resolve(filteredGames);
+      resolve(freeGames);
     });
   } catch (error) {
     console.log(`Error when fetching games: ${error}`);
@@ -56,8 +51,8 @@ const FreeGamesHandler = {
     );
   },
   async handle(handlerInput) {
-    const host = 'https://store.playstation.com';
-    const url = `${host}/pt-br/pages/subscriptions`;
+    const host = 'https://www.playstation.com';
+    const url = `${host}/pt-br/ps-plus/whats-new/`;
     const freeGames = await getFreeGames(url);
 
     const freeGamesSpeech = freeGames

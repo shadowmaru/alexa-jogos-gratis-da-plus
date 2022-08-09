@@ -16,6 +16,6 @@
   "dependencies": {
     "ask-sdk": "^2.0.0",
     "cheerio": "^1.0.0-rc.10",
-    "undici": "^5.5.1"
+    "undici": "^5.8.0"
   }
 }

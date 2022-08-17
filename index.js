@@ -28,7 +28,7 @@ const getFreeGames = async (link) => {
       'div.cmp-experiencefragment--your-latest-monthly-games div.box h3 p',
         text,
     );
-      const games = cells.map((index, el) => $(el).text().replace('&', 'and').replace('®', '').replace('™', ''));
+      const games = cells.map((index, el) => $(el).text().replace(/&/g, 'and').replace(/®/g, '').replace(/™/g, ''));
 
       games.each((index) => {
         freeGames.push(games[index]);

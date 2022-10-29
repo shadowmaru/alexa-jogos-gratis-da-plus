@@ -25,7 +25,7 @@ const getFreeGames = async (link) => {
     return await new Promise((resolve) => {
 
       const cells = $(
-      'div.cmp-experiencefragment--your-latest-monthly-games div.box h3 p',
+      'div.cmp-experiencefragment--your-latest-monthly-games div.box h3',
         text,
     );
       const games = cells.map((index, el) => $(el).text().replace(/&/g, 'and').replace(/®/g, '').replace(/™/g, ''));
@@ -51,6 +51,7 @@ const FreeGamesHandler = {
     );
   },
   async handle(handlerInput) {
+    // current URL: https://www.playstation.com/pt-br/ps-plus/whats-new/
     const host = 'https://www.playstation.com';
     const url = `${host}/pt-br/ps-plus/whats-new/`;
     const freeGames = await getFreeGames(url);
